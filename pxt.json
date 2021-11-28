@@ -1,7 +1,7 @@
 {
     "name": "pxt-ky-040",
     "version": "0.0.0",
-    "description": "",
+    "description": "Extension for the KY-040 rotary encoder",
     "dependencies": {
         "core": "*",
         "radio": "*"
@@ -9,7 +9,8 @@
     "files": [
         "README.md",
         "main.blocks",
-        "main.ts"
+        "main.ts",
+        "ky040.ts"
     ],
     "testFiles": [
         "test.ts"
@@ -18,5 +19,5 @@
     "supportedTargets": [
         "calliopemini"
     ],
-    "preferredEditor": "blocksprj"
+    "preferredEditor": "tsprj"
 }
