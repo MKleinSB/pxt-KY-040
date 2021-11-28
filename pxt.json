@@ -1,6 +1,6 @@
 {
     "name": "pxt-ky-040",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "Extension for the KY-040 rotary encoder",
     "dependencies": {
         "core": "*",
