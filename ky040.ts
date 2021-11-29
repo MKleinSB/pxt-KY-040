@@ -4,9 +4,9 @@ const enum direction {
     //% block="↪️"
     counterclockwise = 4
 }
-
 let CLKPin = DigitalPin.P0;
 let DTPin = DigitalPin.P1;
+let EvCounter=1
 
 //% weight=100 color=#0000bb icon="\uf1ce" blockId="KY-040"
 namespace KY040 {
@@ -24,21 +24,25 @@ namespace KY040 {
         DTPin = DPin;
         pins.setPull(CLKPin, PinPullMode.PullUp)
         pins.setPull(DTPin, PinPullMode.PullUp)
+        pins.onPulsed(CLKPin, PulseValue.High, function () {
+            RotaryEncoder()
+        })
+        pins.onPulsed(CLKPin, PulseValue.Low, function () {
+            RotaryEncoder()
+        })
     }
 
     //% pin.fieldEditor="gridpicker" 
     //% pin.fieldOptions.columns=2
     //% blockId=onTurned block="on turned in direction %direction"
     //% block.loc.de="wenn in Richtung %direction gedreht"
-    export function onTurned(Richtung: direction, handler: () => void) {
+    export function onTurned(Richtung: direction, handler: () => void) {        
         control.onEvent(KYEventID + Richtung, Richtung, handler);
-
     }
 
     //% blockId="OnPinPressed" block="on KY-040 at pin %swpin|pressed"
     //% block.loc.de="wenn KY-040 an Pin %swpin|gedrückt"
     //% swpin.fieldEditor="gridpicker" swpin.fieldOptions.columns=5
-
     export function OnPinPressed(swpin: DigitalPin, handler: Action) {
         const pin = <DigitalPin><number>swpin;
         pins.setPull(pin, PinPullMode.PullUp);
@@ -53,28 +57,20 @@ namespace KY040 {
             } else {
                 Richtung = 0
             }
-            serial.writeLine("turn recognized: ")
+            EvCounter += 1
+            if (EvCounter % 2 == 1) { // kill every second Event            
             if (Richtung == 1) {
                 serial.writeLine("counterclockwise")
-                control.raiseEvent(KYEventID + direction.counterclockwise, direction.counterclockwise);                
+                control.raiseEvent(KYEventID + direction.counterclockwise, direction.counterclockwise);
             } else {
                 serial.writeLine("clockwise")
-                control.raiseEvent(KYEventID + direction.clockwise, direction.clockwise);               
+                control.raiseEvent(KYEventID + direction.clockwise, direction.clockwise);
             }
-            CLKLETZTE=CLKAKTUELL
+            }
+            CLKLETZTE = CLKAKTUELL
         }
     }
-
-    pins.onPulsed(CLKPin, PulseValue.High, function () {
-        RotaryEncoder()
-    })
-    pins.onPulsed(CLKPin, PulseValue.Low, function () {
-        RotaryEncoder()
-    })
-
     let Richtung = 1
     let CLKAKTUELL = 0
     let CLKLETZTE = 0
-
-
 }
