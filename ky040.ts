@@ -1,4 +1,3 @@
-
 const enum direction {
     //% block="↩️"
     clockwise = 2,
@@ -14,6 +13,19 @@ namespace KY040 {
 
     const KYEventID = 3100;
 
+    //% blockId=SetKy 
+    //% block="setKYPins CLK %CPin DT %DPin"
+    //% block.loc.de="KY-040 Pins an CLK %CPin DT %DPin"
+    //% CPin.defl=DigitalPin.C16  DPin.defl=DigitalPin.C17
+    //% CPin.fieldEditor="gridpicker" DPin.fieldEditor="gridpicker"
+    //% CPin.fieldOptions.columns=5 DPpin.fieldOptions.columns=5
+    export function setKY040(CPin: DigitalPin, DPin: DigitalPin): void {
+        CLKPin = CPin;
+        DTPin = DPin;
+        pins.setPull(CLKPin, PinPullMode.PullUp)
+        pins.setPull(DTPin, PinPullMode.PullUp)
+    }
+
     //% pin.fieldEditor="gridpicker" 
     //% pin.fieldOptions.columns=2
     //% blockId=onTurned block="on turned in direction %direction"
@@ -23,35 +35,14 @@ namespace KY040 {
 
     }
 
-    //% blockId=turnedInDirection
-    //% block="turned in direction %Tdirect"
-    //% block.loc.de="in Richtung %Tdirect gedreht"
-    //% Tdirect.fieldEditor="gridpicker" Tdirect.fieldOptions.columns=2
-    export function turnedInDirection(Tdirect: direction): boolean {
-        CLKAKTUELL = pins.digitalReadPin(CLKPin)
-        if (CLKAKTUELL != CLKLETZTE) {
-            if (pins.digitalReadPin(DTPin) != CLKAKTUELL) {
-                Richtung = 1
-            } else {
-                Richtung = 0
-            }
-            CLKLETZTE = CLKAKTUELL
+    //% blockId="OnPinPressed" block="on KY-040 at pin %swpin|pressed"
+    //% block.loc.de="wenn KY-040 an Pin %swpin|gedrückt"
+    //% swpin.fieldEditor="gridpicker" swpin.fieldOptions.columns=5
 
-            if ((Richtung == 1)){
-                if (Tdirect==direction.counterclockwise) {
-                    serial.writeLine("counterclockwise")
-                    return true
-                }
-                
-            } else {
-                if (Tdirect == direction.clockwise) {
-                    serial.writeLine("clockwise")
-                    return true
-                }
-           }
-            
-        }
-        return false;
+    export function OnPinPressed(swpin: DigitalPin, handler: Action) {
+        const pin = <DigitalPin><number>swpin;
+        pins.setPull(pin, PinPullMode.PullUp);
+        pins.onPulsed(pin, PulseValue.High, handler);
     }
 
     function RotaryEncoder() {
@@ -73,23 +64,13 @@ namespace KY040 {
             CLKLETZTE=CLKAKTUELL
         }
     }
+
     pins.onPulsed(CLKPin, PulseValue.High, function () {
         RotaryEncoder()
     })
     pins.onPulsed(CLKPin, PulseValue.Low, function () {
         RotaryEncoder()
     })
-
-    //% blockId=SetKy 
-    //% block="setKYPins Clock %CPin DT %DPin"
-    //% block.loc.de="KY-040 Pins an Clock %CPin DT %DPin"
-    //% CPin.defl=DigitalPin.C16  DPin.defl=DigitalPin.C17
-    export function setKY040(CPin: DigitalPin, DPin: DigitalPin): void {
-        CLKPin = CPin;
-        DTPin = DPin;
-        pins.setPull(CLKPin, PinPullMode.PullUp)
-        pins.setPull(DTPin, PinPullMode.PullUp)
-    }
 
     let Richtung = 1
     let CLKAKTUELL = 0
