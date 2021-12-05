@@ -1,7 +1,7 @@
 const enum direction {
-    //% block="↪️"
-    clockwise = 2,
     //% block="↩️"
+    clockwise = 2,
+    //% block="↪️"
     counterclockwise = 4
 }
 let CLKPin = DigitalPin.P0;
@@ -58,13 +58,13 @@ namespace KY040 {
                 Richtung = 0
             }
             EvCounter += 1
-            if (EvCounter % 2 == 1) { // kill every second Event            
+            if (EvCounter % 2 == 0) { // kill every second Event            
             if (Richtung == 1) {
                 serial.writeLine("counterclockwise")
-                control.raiseEvent(KYEventID + direction.counterclockwise, direction.counterclockwise);
+                control.raiseEvent(KYEventID + direction.clockwise, direction.clockwise);
             } else {
                 serial.writeLine("clockwise")
-                control.raiseEvent(KYEventID + direction.clockwise, direction.clockwise);
+                control.raiseEvent(KYEventID + direction.counterclockwise, direction.counterclockwise);
             }
             }
             CLKLETZTE = CLKAKTUELL
