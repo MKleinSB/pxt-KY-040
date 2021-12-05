@@ -60,11 +60,11 @@ namespace KY040 {
             EvCounter += 1
             if (EvCounter % 2 == 1) { // kill every second Event            
             if (Richtung == 1) {
-                serial.writeLine("counterclockwise")
-                control.raiseEvent(KYEventID + direction.counterclockwise, direction.counterclockwise);
-            } else {
                 serial.writeLine("clockwise")
-                control.raiseEvent(KYEventID + direction.clockwise, direction.clockwise);
+                control.raiseEvent(KYEventID + direction.clockwise, direction.counterclockwise);
+            } else {
+                serial.writeLine("counterclockwise")
+                control.raiseEvent(KYEventID + direction.counterclockwise, direction.clockwise);
             }
             }
             CLKLETZTE = CLKAKTUELL
