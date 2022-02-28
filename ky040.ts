@@ -17,14 +17,15 @@ namespace KY040 {
     const KYEventID = 3100;
 
     //% blockId=SetKy weight=100
-    //% block="setKYPins CLK %CPin DT %DPin"
-    //% block.loc.de="KY-040 Pins an CLK %CPin DT %DPin"
-    //% CPin.defl=DigitalPin.C16  DPin.defl=DigitalPin.C17
-    //% CPin.fieldEditor="gridpicker" DPin.fieldEditor="gridpicker"
-    //% CPin.fieldOptions.columns=5 DPpin.fieldOptions.columns=5
-    export function setKY040(CPin: DigitalPin, DPin: DigitalPin): void {
+    //% block="setKYPins CLK %CPin DT %DPin SW %EPin"
+    //% block.loc.de="KY-040 Pins an CLK %CPin DT %DPin SW %EPin"
+    //% CPin.defl=DigitalPin.C16  DPin.defl=DigitalPin.C17 EPin.defl=DigitalPin.P2
+    //% CPin.fieldEditor="gridpicker" DPin.fieldEditor="gridpicker" EPin.fieldEditor="gridpicker"
+    //% CPin.fieldOptions.columns=5 DPpin.fieldOptions.columns=5 EPin.fieldOptions.columns=5
+    export function setKY040(CPin: DigitalPin, DPin: DigitalPin, EPin: DigitalPin): void {
         CLKPin = CPin;
         DTPin = DPin;
+        dsw=EPin;
         pins.setPull(CLKPin, PinPullMode.PullUp)
         pins.setPull(DTPin, PinPullMode.PullUp)
         pins.onPulsed(CLKPin, PulseValue.High, function () {
@@ -44,13 +45,9 @@ namespace KY040 {
     }
 
 
-    //% blockId=onPressEvent block="on SW at pin %EPin|pressed"
-    //% block.loc.de="wenn SW an Pin %EPin|gedrückt"
-    //% EPin.defl = DigitalPin.C16
-    //% EPin.fieldEditor="gridpicker"
-    //% EPin.fieldOptions.columns=5 
-    export function onPressEvent(EPin: DigitalPin, handler: () => void): void {
-        dsw = EPin;
+    //% blockId=onPressEvent block="on KY040 pressed"
+    //% block.loc.de="wenn KY040 gedrückt"
+    export function onPressEvent(handler: () => void) {
         pins.setPull(dsw, PinPullMode.PullUp)
         control.onEvent(pressedID, 0, handler);
         control.inBackground(() => {
