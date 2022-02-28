@@ -44,13 +44,15 @@ namespace KY040 {
     }
 
 
-    //% CPin.defl = DigitalPin.P2
-    //% blockId=onbPressed block="on button at pin %CPin|pressed"
-    //% block.loc.de="wenn Knopf an Pin %CPin|gedrückt"
-    export function onPressEvent(CPin: DigitalPin, body: () => void): void {
-        dsw = CPin;
+    //% blockId=onPressEvent block="on SW at pin %EPin|pressed"
+    //% block.loc.de="wenn SW an Pin %EPin|gedrückt"
+    //% EPin.defl = DigitalPin.C16
+    //% EPin.fieldEditor="gridpicker"
+    //% EPin.fieldOptions.columns=5 
+    export function onPressEvent(EPin: DigitalPin, handler: () => void): void {
+        dsw = EPin;
         pins.setPull(dsw, PinPullMode.PullUp)
-        control.onEvent(pressedID, 0, body);
+        control.onEvent(pressedID, 0, handler);
         control.inBackground(() => {
             while (true) {
                 const pressed = pins.digitalReadPin(dsw);
