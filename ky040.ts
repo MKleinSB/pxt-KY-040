@@ -6,14 +6,17 @@ const enum direction {
 }
 let CLKPin = DigitalPin.P0;
 let DTPin = DigitalPin.P1;
-let EvCounter=1
+let EvCounter = 1
+let dsw = DigitalPin.P2;
+let lastPressed = 1;
+let pressedID = 5600;
 
 //% weight=100 color=#0000bb icon="\uf1ce" blockId="KY-040"
 namespace KY040 {
 
     const KYEventID = 3100;
 
-    //% blockId=SetKy 
+    //% blockId=SetKy weight=100
     //% block="setKYPins CLK %CPin DT %DPin"
     //% block.loc.de="KY-040 Pins an CLK %CPin DT %DPin"
     //% CPin.defl=DigitalPin.C16  DPin.defl=DigitalPin.C17
@@ -32,22 +35,35 @@ namespace KY040 {
         })
     }
 
-    //% pin.fieldEditor="gridpicker" 
+    //% pin.fieldEditor="gridpicker" weight=90
     //% pin.fieldOptions.columns=2
     //% blockId=onTurned block="on turned in direction %direction"
     //% block.loc.de="wenn in Richtung %direction gedreht"
-    export function onTurned(Richtung: direction, handler: () => void) {        
+    export function onTurned(Richtung: direction, handler: () => void) {
         control.onEvent(KYEventID + Richtung, Richtung, handler);
     }
 
-    //% blockId="OnPinPressed" block="on KY-040 at pin %swpin|pressed"
-    //% block.loc.de="wenn KY-040 an Pin %swpin|gedrückt"
-    //% swpin.fieldEditor="gridpicker" swpin.fieldOptions.columns=5
-    export function OnPinPressed(swpin: DigitalPin, handler: Action) {
-        const pin = <DigitalPin><number>swpin;
-        pins.setPull(pin, PinPullMode.PullUp);
-        pins.onPulsed(pin, PulseValue.High, handler);
+
+    //% CPin.defl = DigitalPin.P2
+    //% blockId=onbPressed block="on button at pin %CPin|pressed"
+    //% block.loc.de="wenn Knopf an Pin %CPin|gedrückt"
+    export function onPressEvent(CPin: DigitalPin, body: () => void): void {
+        dsw = CPin;
+        pins.setPull(dsw, PinPullMode.PullUp)
+        control.onEvent(pressedID, 0, body);
+        control.inBackground(() => {
+            while (true) {
+                const pressed = pins.digitalReadPin(dsw);
+                if (pressed != lastPressed) {
+                    lastPressed = pressed;
+                    //serial.writeLine("P")
+                    if (pressed == 0) control.raiseEvent(pressedID, 0);
+                }
+                basic.pause(50);
+            }
+        })
     }
+
 
     function RotaryEncoder() {
         CLKAKTUELL = pins.digitalReadPin(CLKPin)
@@ -59,13 +75,13 @@ namespace KY040 {
             }
             EvCounter += 1
             if (EvCounter % 2 == 0) { // kill every second Event            
-            if (Richtung == 1) {
-                serial.writeLine("counterclockwise")
-                control.raiseEvent(KYEventID + direction.clockwise, direction.clockwise);
-            } else {
-                serial.writeLine("clockwise")
-                control.raiseEvent(KYEventID + direction.counterclockwise, direction.counterclockwise);
-            }
+                if (Richtung == 1) {
+                    //serial.writeLine("counterclockwise")
+                    control.raiseEvent(KYEventID + direction.clockwise, direction.clockwise);
+                } else {
+                    //serial.writeLine("clockwise")
+                    control.raiseEvent(KYEventID + direction.counterclockwise, direction.counterclockwise);
+                }
             }
             CLKLETZTE = CLKAKTUELL
         }
