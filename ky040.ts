@@ -7,14 +7,14 @@ const enum direction {
 let CLKPin = DigitalPin.P0;
 let DTPin = DigitalPin.P1;
 let EvCounter = 1
-let dsw = DigitalPin.P2;
-let lastPressed = 1;
-let pressedID = 5600;
+let SWPin = DigitalPin.P2;
 
 //% weight=100 color=#0000bb icon="\uf1ce" blockId="KY-040"
 namespace KY040 {
 
     const KYEventID = 3100;
+    let lastPressed = 1;
+    let pressedID = 5600;
 
     //% blockId=SetKy weight=100
     //% block="setKYPins CLK %CPin DT %DPin SW %EPin"
@@ -25,7 +25,7 @@ namespace KY040 {
     export function setKY040(CPin: DigitalPin, DPin: DigitalPin, EPin: DigitalPin): void {
         CLKPin = CPin;
         DTPin = DPin;
-        dsw=EPin;
+        SWPin=EPin;
         pins.setPull(CLKPin, PinPullMode.PullUp)
         pins.setPull(DTPin, PinPullMode.PullUp)
         pins.onPulsed(CLKPin, PulseValue.High, function () {
@@ -41,21 +41,24 @@ namespace KY040 {
     //% blockId=onTurned block="on turned in direction %direction"
     //% block.loc.de="wenn in Richtung %direction gedreht"
     export function onTurned(Richtung: direction, handler: () => void) {
-        control.onEvent(KYEventID + Richtung, Richtung, handler);
+        control.onEvent(KYEventID + Richtung, 0, handler);
     }
 
 
     //% blockId=onPressEvent block="on KY040 pressed"
     //% block.loc.de="wenn KY040 gedrückt"
+    //% EPin.defl = DigitalPin.P2
+    //% EPin.fieldEditor="gridpicker"
+    //% EPin.fieldOptions.columns=5 
     export function onPressEvent(handler: () => void) {
-        pins.setPull(dsw, PinPullMode.PullUp)
+        pins.setPull(SWPin, PinPullMode.PullUp)
         control.onEvent(pressedID, 0, handler);
         control.inBackground(() => {
             while (true) {
-                const pressed = pins.digitalReadPin(dsw);
+                const pressed = pins.digitalReadPin(SWPin);
                 if (pressed != lastPressed) {
                     lastPressed = pressed;
-                    //serial.writeLine("P")
+                    serial.writeLine("P")
                     if (pressed == 0) control.raiseEvent(pressedID, 0);
                 }
                 basic.pause(50);
@@ -75,10 +78,10 @@ namespace KY040 {
             EvCounter += 1
             if (EvCounter % 2 == 0) { // kill every second Event            
                 if (Richtung == 1) {
-                    //serial.writeLine("counterclockwise")
+                    serial.writeLine("counterclockwise")
                     control.raiseEvent(KYEventID + direction.clockwise, direction.clockwise);
                 } else {
-                    //serial.writeLine("clockwise")
+                    serial.writeLine("clockwise")
                     control.raiseEvent(KYEventID + direction.counterclockwise, direction.counterclockwise);
                 }
             }
