@@ -4,17 +4,22 @@ const enum direction {
     //% block="↪️"
     counterclockwise = 4
 }
-let CLKPin = DigitalPin.P0;
-let DTPin = DigitalPin.P1;
-let EvCounter = 1
-let SWPin = DigitalPin.P2;
 
 //% weight=100 color=#0000bb icon="\uf1ce" blockId="KY-040"
 namespace KY040 {
 
+
+    let CLKPin = DigitalPin.P0;
+    let DTPin = DigitalPin.P1;
+    let SWPin = DigitalPin.P2;
+    let EvCounter = 1
     const KYEventID = 3100;
     let lastPressed = 1;
     let pressedID = 5600;
+
+    let Richtung = 1
+    let CLKAKTUELL = 0
+    let CLKLETZTE = 0
 
     //% blockId=SetKy weight=100
     //% block="setKYPins CLK %CPin DT %DPin SW %EPin"
@@ -47,9 +52,6 @@ namespace KY040 {
 
     //% blockId=onPressEvent block="on KY040 pressed"
     //% block.loc.de="wenn KY040 gedrückt"
-    //% EPin.defl = DigitalPin.P2
-    //% EPin.fieldEditor="gridpicker"
-    //% EPin.fieldOptions.columns=5 
     export function onPressEvent(handler: () => void) {
         pins.setPull(SWPin, PinPullMode.PullUp)
         control.onEvent(pressedID, 0, handler);
@@ -88,7 +90,4 @@ namespace KY040 {
             CLKLETZTE = CLKAKTUELL
         }
     }
-    let Richtung = 1
-    let CLKAKTUELL = 0
-    let CLKLETZTE = 0
 }
